@@ -32,8 +32,9 @@ const signup = async (req, res, next) => {
         const result = await User.create({ ...req.body, password: hashPassword, avatarURL })
 
         res.status(201).json({
-            email: result.email,
-            subscription: result.subscription,
+            "email": result.email,
+            "subscription": result.subscription,
+            "avatarURL": result.avatarURL,
         })
     } catch (error) {
         next(error)
@@ -66,8 +67,9 @@ const signin = async (req, res, next) => {
         res.status(200).json({
             token,
             user: {
-                email: user.email,
-                subscription: user.subscription,
+                "email": user.email,
+                "subscription": user.subscription,
+                "avatarURL": user.avatarURL,
             }
         })
     } catch (error) {
@@ -85,10 +87,11 @@ const sigout = async (req, res, next) => {
 }
 const getCurrent = async (req, res, next) => {
    try {
-     const { email, subscription } = req.user
+     const { email, subscription, avatarURL } = req.user
     res.status(200).json({
-        email: email,
-        subscription: subscription
+        "email": email,
+        "subscription": subscription,
+        "avatarURL": avatarURL
     })
    } catch (error) {
     next(error)
@@ -109,6 +112,7 @@ const updateSubs = async (req, res, next) => {
             "id": result._id,
             "email": result.email,
             "subscription": result.subscription,
+            "avatarURL": result.avatarURL
         });
     } catch (error) {
         next(error)
@@ -116,6 +120,9 @@ const updateSubs = async (req, res, next) => {
 }
 const updateAvatars = async (req, res, next) => {
     try {
+        if (!req.file) {
+            throw HttpError(400, "File not attached")
+        }
         const { path: oldPath, filename } = req.file
         Jimp.read(oldPath, (err, img) => {
             if (err) return console.log(err)
